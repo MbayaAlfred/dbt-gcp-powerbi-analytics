@@ -24,8 +24,12 @@ This project showcases an end-to-end **data pipeline** using **dbt, Google Cloud
 - create intial branch in dbt for git versioning
 
   
- ## dbt Quickstart
+ ## dbt Setup
  1. **Build Model**: Add new data Load sample data **select * from `dbt-tutorial.jaffle_shop.customers** execute **dbt run ** 
- 2. **Model Persist to warehouse**: dbt allows you to change view to table models: +materialized: table ** pic
+ 2. **Model Persist to warehouse**: dbt allows you to change view to table models: editing the **yml file directly** pic
  3. **Build other models**:Separate logic, transform data to add new models for further analysis ** pic
- 4. **DCG Diagram - lineage **: Allows to view existing lineage and dependency
+ 4. **DCG Diagram** - lineage **: Allows to view existing lineage and dependency
+ 5. **Add Test to the Models** - lineage **: Validate models are working, test for Referential integrity/ nulls ** dbt test ** ** pic
+ 6. **Document your Models** Add documentation to your models, share information with team and stakeholders ** pic yml file**
+ 7. **Deploy your Models** Create and trigger Production jobs. As business picks up there is need to rebuild source tables and keep data up to date.
+    
