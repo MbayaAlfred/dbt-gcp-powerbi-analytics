@@ -1,73 +1,110 @@
+# ☁️ Cloud ELT Pipeline with dbt Cloud & Google BigQuery
 
+![Project banner](https://github.com/user-attachments/assets/b93be2b4-0e2f-4bc4-8776-318850d2eb12)
 
-![banner](https://github.com/user-attachments/assets/b93be2b4-0e2f-4bc4-8776-318850d2eb12)
+A screenshot-documented portfolio project demonstrating a cloud **ELT (Extract, Load, Transform)** workflow using **Google BigQuery**, **dbt Cloud**, **SQL**, and **YAML**. The exercise explores SQL-based models, data quality tests, lineage, documentation, and deployment-job setup using the public **Jaffle Shop** tutorial dataset.
 
+> **Project status — Archived demonstration:** The original dbt SQL models, YAML files, and cloud environment are no longer available. This repository preserves screenshots and implementation notes rather than an executable dbt project. No Power BI report was developed for this exercise.
 
-## Overview
+## 📑 Table of Contents
+- [Project Overview](#-project-overview)
+- [Architecture](#️-architecture)
+- [Technology Stack](#️-technology-stack)
+- [Implementation Walkthrough](#-implementation-walkthrough)
+- [Data Quality Tests](#-data-quality-tests)
+- [Model Lineage and Documentation](#-model-lineage-and-documentation)
+- [Deployment Workflow](#-deployment-workflow)
+- [Screenshots](#-screenshots)
+- [Project Availability](#-project-availability)
+- [Key Learnings](#-key-learnings)
 
-This project showcases an end-to-end **data pipeline** using **dbt, Google Cloud (BigQuery), and Power BI**.
-The goal is to transform raw data into actionable insights
+## 🎯 Project Overview
 
-- Create a Google Cloud Platform (GCP) project.
-- Access sample data in a public dataset.
-- Connect dbt Cloud to BigQuery.
-- Take a sample query and turn it into a model in your dbt project. A model in dbt is a select statement.
-- Add tests to your models.
-- Document your models.
-- Schedule a job to run.
+The objective was to learn how dbt can transform data already loaded into a cloud warehouse and make the resulting models easier to test, understand, and maintain.
 
-## Tech Stack
-- **dbt** (Data Build Tool) for transformations
-- **Google Cloud BigQuery** as the data warehouse
-- **Power BI** for visualization and reporting
-- **Google Cloud Storage** for raw data ingestion (optional)
+The exercise covered setting up a Google Cloud project, accessing a public BigQuery dataset, connecting dbt Cloud to BigQuery, building SQL models, defining schema tests, exploring model dependencies, generating documentation, and configuring a deployment job.
 
-## Architecture Setup
-- GCP setup : use sample dataset and 14 free trial account, create service account on google cloud 
+## 🏗️ Architecture
 
-![gcp](https://github.com/user-attachments/assets/830752f4-032e-45f7-855b-aebfa0d183fd)
+```mermaid
+flowchart TD
+    A[Public Jaffle Shop Dataset] --> B[Google BigQuery]
+    C[dbt Cloud] -->|Runs SQL transformations| B
+    C --> D[SQL Models and YAML Configuration]
+    D --> E[Data Quality Tests]
+    D --> F[Model Lineage and Documentation]
+    C --> G[Deployment Job Configuration]
+    G -->|Executes dbt commands against| B
+```
 
+**ELT vs. ETL:** BigQuery holds the source data, while dbt runs SQL transformations within the warehouse. No separate raw-file ingestion process is documented in this project.
 
-- dbt setup : create trial dbt cloud account, use GCP service account credentials and connect to dbt instance using BigQueryCredentials
-  
+## ⚙️ Technology Stack
 
-  ![dbt](https://github.com/user-attachments/assets/304ec669-8485-4c94-8640-bce17f09f2f3)
+| Technology | Role |
+|---|---|
+| Google Cloud Platform | Cloud project and service account setup |
+| Google BigQuery | Source dataset and warehouse for transformed models |
+| dbt Cloud | Model development, testing, documentation, and job configuration |
+| SQL | Data selection and transformation logic |
+| YAML | Model descriptions, tests, and project configuration |
 
-  
+## 🔧 Implementation Walkthrough
 
- ## dbt Setup
- 1. **Build Model**: Add new data Load sample data **select * from `dbt-tutorial.jaffle_shop.customers** 
+### 1. Configure Google Cloud and BigQuery
 
+The exercise began with a Google Cloud project and service account to enable dbt Cloud to connect to BigQuery. The public Jaffle Shop tutorial data provided the sample source.
 
-![customermodel](https://github.com/user-attachments/assets/194b814e-6edd-4c12-aec3-4e4035815a79)
+![Google Cloud setup](https://github.com/user-attachments/assets/830752f4-032e-45f7-855b-aebfa0d183fd)
 
-    
- 3. **Model Persist to warehouse**: dbt allows you to change view to table models: editing the **yml file directly** 
+### 2. Connect dbt Cloud
 
+A dbt Cloud environment was configured to work with the BigQuery warehouse using service-account credentials.
 
-![persisttable](https://github.com/user-attachments/assets/22cc3166-6ebd-461d-bdea-5459b4c895dd)
+![dbt Cloud setup](https://github.com/user-attachments/assets/304ec669-8485-4c94-8640-bce17f09f2f3)
 
-**By editing the yaml file directly**
+> **Security note:** Credentials and service-account private keys should never be committed to a public repository. Screenshots should be reviewed for sensitive configuration values before publication.
 
-[version: 2
+### 3. Build a SQL model
+
+A sample query used the public customer dataset:
+
+```sql
+select *
+from `dbt-tutorial.jaffle_shop.customers`
+```
+
+In dbt, a model is typically a `.sql` file containing a `SELECT` statement. dbt compiles and runs the model in the target warehouse.
+
+![Customer model](https://github.com/user-attachments/assets/194b814e-6edd-4c12-aec3-4e4035815a79)
+
+### 4. Explore materializations
+
+The project explored how dbt models can be materialized as warehouse views or tables. Materialization can be configured in model SQL or in `dbt_project.yml`; model documentation and tests are commonly declared in YAML property files.
+
+![Model persistence and configuration](https://github.com/user-attachments/assets/22cc3166-6ebd-461d-bdea-5459b4c895dd)
+
+## ✅ Data Quality Tests
+
+The original project notes show schema-test examples for customers and orders, including:
+
+| Test | Purpose |
+|---|---|
+| `unique` | Ensure identifiers do not repeat |
+| `not_null` | Require values in key columns |
+| `accepted_values` | Restrict order statuses to approved values |
+| `relationships` | Check order customer IDs against the referenced customer model |
+
+Illustrative excerpt reconstructed from the original README (not a recovered project file):
+
+```yaml
+version: 2
 
 models:
-  - name: customers
-    description: One record per customer
-    columns:
-      - name: customer_id
-        description: Primary key
-        tests:
-          - unique
-          - not_null
-      - name: first_order_date
-        description: NULL when a customer has not yet placed an order.
-
   - name: stg_customers
     description: This model cleans up customer data
     columns:
       - name: customer_id
-        description: Primary key
         tests:
           - unique
           - not_null
@@ -76,7 +113,6 @@ models:
     description: This model cleans up order data
     columns:
       - name: order_id
-        description: Primary key
         tests:
           - unique
           - not_null
@@ -89,28 +125,46 @@ models:
           - not_null
           - relationships:
               to: ref('stg_customers')
-              field: customer_idUploading schema.yml…]()
+              field: customer_id
+```
 
+![dbt test interface](https://github.com/user-attachments/assets/4d1ae81b-3d4c-404d-bc3f-b9fbd35980f5)
 
- 4. **Build other models**:Separate logic, transform data to add new models for further analysis 
- 5. **DCG Diagram** - lineage **: Allows to view existing lineage and dependency
-  
-![dag](https://github.com/user-attachments/assets/8d8392aa-3cd0-4e16-ab86-d9796619a5c4)
+The screenshots document testing activity; detailed historical test logs and pass/fail totals are not available.
 
+## 🔗 Model Lineage and Documentation
 
- 7. **Add Test to the Models** - lineage **: Validate models are working, test for Referential integrity/ nulls 
+The dbt DAG visualizes model dependencies, making upstream and downstream relationships easier to inspect.
 
+![dbt lineage DAG](https://github.com/user-attachments/assets/8d8392aa-3cd0-4e16-ab86-d9796619a5c4)
 
-![dbttest](https://github.com/user-attachments/assets/4d1ae81b-3d4c-404d-bc3f-b9fbd35980f5)
+Model and column descriptions support maintainability and knowledge sharing.
 
-    
- 9. **Document your Models** Add documentation to your models, share information with team and stakeholders
+![dbt documentation](https://github.com/user-attachments/assets/d05935b8-ea4b-4d32-be37-1f49ff1eb579)
 
-  ![documentation](https://github.com/user-attachments/assets/d05935b8-ea4b-4d32-be37-1f49ff1eb579)
+## 🚀 Deployment Workflow
 
- 11. **Deploy your Models** Create and trigger Production jobs. As business picks up there is need to rebuild source tables and keep data up to date.
- 12. 
-![deploy](https://github.com/user-attachments/assets/61601082-2193-4174-b514-16ee932fd4e4)
+The exercise also explored configuring and triggering dbt Cloud deployment jobs to rerun models as source data changes. The original job definitions, schedule, and historical execution logs are not retained, so this repository does not claim a currently running production schedule.
 
-     
-    
+![dbt deployment](https://github.com/user-attachments/assets/61601082-2193-4174-b514-16ee932fd4e4)
+
+## 📸 Screenshots
+
+The screenshots embedded throughout this README cover cloud setup, dbt connection, model development, materialization, testing, lineage, documentation, and deployment. Images are hosted as GitHub user attachments and are preserved from the original project documentation.
+
+## 📂 Project Availability
+
+This is an **archived technical portfolio walkthrough**, not a reproducible source-code repository. The original `.sql` models, `.yml` configuration files, cloud credentials, and dbt environment are unavailable. The example SQL and YAML above illustrate concepts recorded in the original README; they are not presented as a complete executable project.
+
+To reproduce the exercise, create a new BigQuery and dbt environment, configure access to the public Jaffle Shop dataset, implement the models and tests, and set up a deployment job using current dbt documentation.
+
+## 💡 Key Learnings
+
+- Differentiating warehouse-based **ELT** from traditional ETL.
+- Building reusable SQL transformation models in dbt Cloud.
+- Applying uniqueness, completeness, accepted-value, and relationship tests.
+- Understanding model lineage through dependency graphs.
+- Documenting models and columns for maintainability.
+- Exploring deployment-job configuration for repeatable warehouse transformations.
+
+**Portfolio focus:** This project documents foundational cloud data engineering practices and complements hands-on BI reporting and traditional SSIS ETL projects.
